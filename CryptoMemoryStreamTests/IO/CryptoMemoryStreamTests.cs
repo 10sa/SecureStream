@@ -41,7 +41,6 @@ namespace CryptoMemoryStream.IO.Tests
 
 			for (int i = 0; i < 2; i++)
 			{
-				memoryStream.Position = 0;
 				memoryStream.Write(data, 0, data.Length);
 				Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
 				Console.WriteLine(string.Join(" ", buffer));
