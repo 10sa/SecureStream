@@ -10,35 +10,76 @@ namespace CryptoMemoryStream.IO
 {
 	public class CryptoMemoryStream : MemoryStream
 	{
-		private CryptoStream writeStream;
-		private CryptoStream readStream;
-		private AesManaged aesManaged = new AesManaged();
-		private readonly int writeableSize;
+		private ICryptoTransform crypter;
 
-		public override int Capacity { 
-			get => writeableSize; 
-			set => base.Capacity = (value / 16 + 1) * 16; 
-		}
+		private AesCryptoServiceProvider aesManaged = new AesCryptoServiceProvider
+		{
+			Padding = PaddingMode.None,
+			Mode = CipherMode.ECB
+		};
 
-		public CryptoMemoryStream(int size, byte[] key) : base((size / 16 + 1) * 16)
+		public CryptoMemoryStream(int size, byte[] key)  : base(size)
 		{
 			aesManaged.KeySize = key.Length * 8;
 			aesManaged.Key = key;
 			aesManaged.IV = key;
-			writeableSize = size;
 
-			writeStream = new CryptoStream(this, aesManaged.CreateEncryptor(), CryptoStreamMode.Write);
-			readStream = new CryptoStream(this, aesManaged.CreateDecryptor(), CryptoStreamMode.Read);
+			crypter = aesManaged.CreateEncryptor();
 		}
 
-		public new void Write(byte[] buffer, int offset, int count)
+		public override void Write(byte[] buffer, int offset, int count)
 		{
-			writeStream.Write(buffer, offset, count);
+			CTRAlgorithm(buffer, offset, count);
+			base.Write(buffer, offset, count);
 		}
 
-		public new int Read(byte[] buffer, int offset, int count)
+		public override int Read(byte[] buffer, int offset, int count)
 		{
-			return readStream.Read(buffer, offset, count);
-		}	
+			Position = Math.Max(Position - count, 0);
+			int readedSize = base.Read(buffer, offset, count);
+
+			return readedSize;
+		}
+
+		public void Encrypt(byte[] buffer, int offset, int count)
+		{
+			base.Write(buffer, offset, count);
+		}
+
+		public int Decrypt(byte[] buffer, int offset, int count)
+		{
+			Position = Math.Max(Position - count, 0);
+			int readedSize = base.Read(buffer, offset, count);
+			CTRAlgorithm(buffer, offset, readedSize);
+
+			return readedSize;
+		}
+
+		private void CTRAlgorithm(byte[] buffer, int offset, int count)
+		{
+			Queue<byte> xorMask = new Queue<byte>();
+			int blockSize = aesManaged.BlockSize / 8;
+			byte[] counter = (byte[]) aesManaged.Key.Clone();
+			for (int i = 0; i < count; i++)
+			{
+				if (xorMask.Count == 0)
+				{
+					var counterModeBlock = new byte[blockSize];
+
+					crypter.TransformBlock(counter, 0, counter.Length, counterModeBlock, 0);
+
+					for (var _i = counter.Length - 1; _i >= 0; _i--)
+					{
+						if (++counter[_i] != 0)
+							break;
+					}
+
+					foreach (var j in counterModeBlock)
+						xorMask.Enqueue(j);
+				}
+
+				buffer[i] = (byte)(buffer[i] ^ xorMask.Dequeue());
+			}
+		}
 	}
 }
