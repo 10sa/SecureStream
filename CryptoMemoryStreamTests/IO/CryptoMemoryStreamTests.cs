@@ -11,10 +11,15 @@ namespace CryptoMemoryStream.IO.Tests
 	[TestClass()]
 	public class CryptoMemoryStreamTests
 	{
+		public byte[] plainKey = new byte[16];
+		public byte[] data = new byte[16];
+
 		[TestMethod()]
 		public void WriteTest()
 		{
-			Assert.Fail();
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+
+			memoryStream.Write(data, 0, data.Length);
 		}
 	}
 }

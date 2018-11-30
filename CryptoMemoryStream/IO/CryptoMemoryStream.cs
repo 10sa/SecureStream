@@ -22,6 +22,7 @@ namespace CryptoMemoryStream.IO
 
 		public CryptoMemoryStream(int size, byte[] key) : base((size / 16 + 1) * 16)
 		{
+			aesManaged.KeySize = key.Length * 8;
 			aesManaged.Key = key;
 			aesManaged.IV = key;
 			writeableSize = size;
