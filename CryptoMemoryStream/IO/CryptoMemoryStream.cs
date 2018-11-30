@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace CryptoMemoryStream.IO
 {
-	class CryptoMemoryStream : MemoryStream
+	public class CryptoMemoryStream : MemoryStream
 	{
 		private CryptoStream writeStream;
 		private CryptoStream readStream;
