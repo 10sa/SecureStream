@@ -100,7 +100,7 @@ namespace CryptoMemoryStream.IO
 		}
 
 		/// <summary>
-		/// 버퍼에서 읽은 데이터를 사용하여 현재 스트림에 바이트 블록을 하여 씁니다.
+		/// 버퍼에서 읽은 데이터를 사용하여 현재 스트림에 바이트 블록을 암호화 하여 씁니다.
 		/// </summary>
 		/// <param name="buffer">데이터를 쓸 버퍼입니다.</param>
 		/// <param name="offset">현재 스트림으로 바이트를 복사하기 시작할 buffer의 바이트 오프셋(0부터 시작)입니다.</param>
