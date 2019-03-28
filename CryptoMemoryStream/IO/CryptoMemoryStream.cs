@@ -26,9 +26,9 @@ namespace CryptoMemoryStream.IO
 		/// </summary>
 		/// <param name="buffer">현재 스트림을 만들 부호 없는 바이트의 배열입니다.</param>
 		/// /// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
-		public CryptoMemoryStream(byte[] buffer, byte[] key) : base(buffer)
+		public CryptoMemoryStream(byte[] buffer, byte[] key, byte[] initializeVector) : base(buffer)
 		{
-			InitializeCryptor(key);
+			InitializeCryptor(key, initializeVector);
 		}
 
 		/// <summary>
@@ -36,18 +36,18 @@ namespace CryptoMemoryStream.IO
 		/// </summary>
 		/// <param name="size">내부 배열의 초기 크기(바이트)입니다.</param>
 		/// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
-		public CryptoMemoryStream(int size, byte[] key) : base(size)
+		public CryptoMemoryStream(int size, byte[] key, byte[] initializeVector) : base(size)
 		{
-			InitializeCryptor(key);
+			InitializeCryptor(key, initializeVector);
 		}
 
 		/// <summary>
 		/// 0으로 초기화된 확장명 가능한 용량을 사용하여 CryptoMemoryStream 클래스의 새 인스턴스를 초기화합니다.
 		/// </summary>
 		/// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
-		public CryptoMemoryStream(byte[] key) : base()
+		public CryptoMemoryStream(byte[] key, byte[] initializeVector) : base()
 		{
-			InitializeCryptor(key);
+			InitializeCryptor(key, initializeVector);
 		}
 
 		/// <summary>
@@ -61,12 +61,12 @@ namespace CryptoMemoryStream.IO
 			return new CryptoMemoryStream(baseStream.GetBuffer(), key);
 		}
 
-		private void InitializeCryptor(byte[] key)
+		private void InitializeCryptor(byte[] key, byte[] initializeVector)
 		{
 			cryptor = aesManaged.CreateEncryptor();
 			aesManaged.KeySize = key.Length * 8;
 			aesManaged.Key = key;
-			aesManaged.IV = key;
+			aesManaged.IV = initializeVector;
 		}
 
 		/// <summary>
