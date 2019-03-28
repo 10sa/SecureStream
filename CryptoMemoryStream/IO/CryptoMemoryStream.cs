@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace CryptoMemoryStream.IO
 {
@@ -79,7 +80,7 @@ namespace CryptoMemoryStream.IO
 		{
 			byte[] encryptBytes = (byte[])buffer.Clone();
 
-			CTRCryptor(encryptBytes, offset, count);
+			CTRCryptor(encryptBytes, count);
 			base.Write(encryptBytes, offset, count);
 		}
 
@@ -120,7 +121,7 @@ namespace CryptoMemoryStream.IO
 		public int Decrypt(byte[] buffer, int offset, int count)
 		{
 			int readedSize = Read(buffer, offset, count);
-			CTRCryptor(buffer, offset, readedSize);
+			CTRCryptor(buffer, readedSize);
 
 			return readedSize;
 		}
@@ -136,7 +137,9 @@ namespace CryptoMemoryStream.IO
 			base.Close();
 		}
 
-		private void CTRCryptor(byte[] buffer, int offset, int count)
+
+
+		private void CTRCryptor(byte[] buffer, int count)
 		{
 			Queue<byte> xorMask = new Queue<byte>();
 			int blockSize = aesManaged.BlockSize / 8;
@@ -161,6 +164,82 @@ namespace CryptoMemoryStream.IO
 
 				buffer[i] = (byte)(buffer[i] ^ xorMask.Dequeue());
 			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			aesManaged.Dispose();
+			cryptor.Dispose();
+		}
+
+		public override void WriteByte(byte value)
+		{
+			Write(new byte[] { value }, 0, 1);
+		}
+
+		/// <summary>
+		/// MemoryStream.BeginRead 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.EndRead 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override int EndRead(IAsyncResult asyncResult)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.BeginWrite 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.EndWrite 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override void EndWrite(IAsyncResult asyncResult)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.FlushAsync 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override Task FlushAsync(CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.ReadAsync 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.CopyToAsync 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
+		}
+
+		/// <summary>
+		/// MemoryStream.WriteAsync 메소드를 재정의하여 아무것도 하지 않도록 합니다.
+		/// </summary>
+		public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException("사용이 불가능한 메소드입니다.");
 		}
 	}
 }

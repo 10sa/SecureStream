@@ -17,7 +17,7 @@ namespace CryptoMemoryStream.IO.Tests
 		[TestMethod()]
 		public void WriteTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
 
 			memoryStream.Write(data, 0, data.Length);
 		}
@@ -25,7 +25,7 @@ namespace CryptoMemoryStream.IO.Tests
 		[TestMethod()]
 		public void ReadTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
 			byte[] buffer = new byte[16];
 
 			memoryStream.Write(data, 0, data.Length);
@@ -36,7 +36,7 @@ namespace CryptoMemoryStream.IO.Tests
 		[TestMethod()]
 		public void DuplexRWTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
 			byte[] buffer = new byte[16];
 
 			for (int i = 0; i < 2; i++)
