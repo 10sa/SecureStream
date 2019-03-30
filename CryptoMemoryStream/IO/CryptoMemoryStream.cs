@@ -16,7 +16,7 @@ namespace CryptoMemoryStream.IO
 	{
 		private ICryptoTransform cryptor;
 
-		private AesCryptoServiceProvider aesManaged = new AesCryptoServiceProvider
+		private readonly AesCryptoServiceProvider aesManaged = new AesCryptoServiceProvider
 		{
 			Padding = PaddingMode.None,
 			Mode = CipherMode.ECB
@@ -26,7 +26,8 @@ namespace CryptoMemoryStream.IO
 		/// 지정된 바이트 배열을 기반으로 하는 CryptoMemoryStream 클래스의 크기 조정이 불가능한 새 인스턴스를 초기화합니다.
 		/// </summary>
 		/// <param name="buffer">현재 스트림을 만들 부호 없는 바이트의 배열입니다.</param>
-		/// /// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
+		/// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
+		/// <param name="initializeVector">암호화 및 복호화에 사용될 초기화 벡터입니다.</param>
 		public CryptoMemoryStream(byte[] buffer, byte[] key, byte[] initializeVector) : base(buffer)
 		{
 			InitializeCryptor(key, initializeVector);
@@ -37,6 +38,7 @@ namespace CryptoMemoryStream.IO
 		/// </summary>
 		/// <param name="size">내부 배열의 초기 크기(바이트)입니다.</param>
 		/// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
+		/// <param name="initializeVector">암호화 및 복호화에 사용될 초기화 벡터입니다.</param>
 		public CryptoMemoryStream(int size, byte[] key, byte[] initializeVector) : base(size)
 		{
 			InitializeCryptor(key, initializeVector);
@@ -46,6 +48,7 @@ namespace CryptoMemoryStream.IO
 		/// 0으로 초기화된 확장명 가능한 용량을 사용하여 CryptoMemoryStream 클래스의 새 인스턴스를 초기화합니다.
 		/// </summary>
 		/// <param name="key">암호화 및 복호화에 사용되는 키 값입니다.</param>
+		/// <param name="initializeVector">암호화 및 복호화에 사용될 초기화 벡터입니다.</param>
 		public CryptoMemoryStream(byte[] key, byte[] initializeVector) : base()
 		{
 			InitializeCryptor(key, initializeVector);
@@ -137,8 +140,6 @@ namespace CryptoMemoryStream.IO
 			base.Close();
 		}
 
-
-
 		private void CTRCryptor(byte[] buffer, int count)
 		{
 			Queue<byte> xorMask = new Queue<byte>();
@@ -166,6 +167,10 @@ namespace CryptoMemoryStream.IO
 			}
 		}
 
+		/// <summary>
+		/// CryptoMemoryStream 에 사용되는 관리되지 않는 리소스를 제거하고, 필요에 따라 관리되는 리소스를 해제합니다.
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
@@ -173,6 +178,10 @@ namespace CryptoMemoryStream.IO
 			cryptor.Dispose();
 		}
 
+		/// <summary>
+		/// 현재 위치에서 현재 스트림에 바이트를 암호화 하여 씁니다.
+		/// </summary>
+		/// <param name="value"></param>
 		public override void WriteByte(byte value)
 		{
 			Write(new byte[] { value }, 0, 1);
