@@ -7,7 +7,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 
-namespace CryptoMemoryStream.IO
+namespace CryptoStream
 {
 	/// <summary>
 	/// 백업 저장소가 메모리이면서 읽기 또는 쓰기 과정에서 복호화 또는 암호화가 가능한 스트림을 만듭니다.

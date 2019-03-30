@@ -63,9 +63,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CryptoMemoryStream\CryptoMemoryStream.csproj">
+    <ProjectReference Include="..\CryptoStream\CryptoStream.csproj">
       <Project>{521A7596-AC35-4790-A764-BA47CBA254DC}</Project>
-      <Name>CryptoMemoryStream</Name>
+      <Name>CryptoStream</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
