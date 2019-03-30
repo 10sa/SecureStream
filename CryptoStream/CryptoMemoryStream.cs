@@ -14,6 +14,11 @@ namespace CryptoStream
 	/// </summary>
 	public class CryptoMemoryStream : MemoryStream
 	{
+		/// <summary>
+		/// 내부 암호화 알고리즘에 사용되는 초기화 벡터(Initialization vector) 의 크기를 반환합니다.
+		/// </summary>
+		public int IVSize => aesManaged.BlockSize / 8;
+
 		private ICryptoTransform cryptor;
 
 		private readonly AesCryptoServiceProvider aesManaged = new AesCryptoServiceProvider
@@ -81,10 +86,19 @@ namespace CryptoStream
 		/// <param name="count">쓸 최대 바이트 수입니다.</param>
 		public override void Write(byte[] buffer, int offset, int count)
 		{
-			byte[] encryptBytes = (byte[])buffer.Clone();
+			base.Write(buffer, offset, count);
+		}
 
-			CTRCryptor(encryptBytes, count);
-			base.Write(encryptBytes, offset, count);
+		/// <summary>
+		/// 현재 스트림에서 바이트 블록을 읽어서 버퍼에 쓰고 읽어들인 부분을 0으로 채웁니다.
+		/// </summary>
+		/// <param name="buffer">이 메서드는 지정된 바이트 배열의 값이 offset과 (offset + count - 1) 사이에서 현재 원본으로부터 읽어온 바이트로 교체된 상태로 반환됩니다.</param>
+		/// <param name="offset">현재 스트림으로 바이트를 복사하기 시작할 buffer의 바이트 오프셋(0부터 시작)입니다.</param>
+		/// <param name="count">쓸 최대 바이트 수입니다.</param>
+		/// <returns>버퍼로 쓴 총 바이트 수입니다. 해당 바이트 수를 현재 사용할 수 없는 경우 이 수는 요청된 바이트 수보다 작을 수 있으며 바이트를 읽기 전에 스트림의 끝에 도달한 경우에는 0이 될 수도 있습니다.</returns>
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			return Read(buffer, offset, count, true);
 		}
 
 		/// <summary>
@@ -93,13 +107,26 @@ namespace CryptoStream
 		/// <param name="buffer">이 메서드는 지정된 바이트 배열의 값이 offset과 (offset + count - 1) 사이에서 현재 원본으로부터 읽어온 바이트로 교체된 상태로 반환됩니다.</param>
 		/// <param name="offset">현재 스트림으로 바이트를 복사하기 시작할 buffer의 바이트 오프셋(0부터 시작)입니다.</param>
 		/// <param name="count">쓸 최대 바이트 수입니다.</param>
+		/// <param name="erase">읽어들인 스트림 위치의 데이터를 0으로 채웁니다.</param>
 		/// <returns>버퍼로 쓴 총 바이트 수입니다. 해당 바이트 수를 현재 사용할 수 없는 경우 이 수는 요청된 바이트 수보다 작을 수 있으며 바이트를 읽기 전에 스트림의 끝에 도달한 경우에는 0이 될 수도 있습니다.</returns>
-		public override int Read(byte[] buffer, int offset, int count)
+		public int Read(byte[] buffer, int offset, int count, bool erase)
 		{
-			Position = Math.Max(Position - count, 0);
+			int streamPosition = (int)Math.Max(Position - count, 0);
+
+			Position = streamPosition;
 			int readedSize = base.Read(buffer, offset, count);
+
+			Position = streamPosition;
 			SetLength(Position);
 
+			if (erase)
+			{
+				for (int i = 0; i < readedSize; i++)
+					WriteByte(0);
+			}
+
+			Position = streamPosition;
+			SetLength(Position);
 			return readedSize;
 		}
 
@@ -111,7 +138,10 @@ namespace CryptoStream
 		/// <param name="count">쓸 최대 바이트 수입니다.</param>
 		public void Encrypt(byte[] buffer, int offset, int count)
 		{
-			base.Write(buffer, offset, count);
+			byte[] encryptBytes = (byte[])buffer.Clone();
+
+			CTRCryptor(encryptBytes, count);
+			base.Write(encryptBytes, offset, count);
 		}
 
 		/// <summary>

@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CryptoMemoryStream.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
-namespace CryptoMemoryStream.IO.Tests
+using CryptoStream;
+
+namespace CryptoStream.IO.Tests
 {
 	[TestClass()]
 	public class CryptoMemoryStreamTests
@@ -19,7 +21,7 @@ namespace CryptoMemoryStream.IO.Tests
 		{
 			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
 
-			memoryStream.Write(data, 0, data.Length);
+			memoryStream.Encrypt(data, 0, data.Length);
 		}
 
 		[TestMethod()]
@@ -28,7 +30,7 @@ namespace CryptoMemoryStream.IO.Tests
 			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
 			byte[] buffer = new byte[16];
 
-			memoryStream.Write(data, 0, data.Length);
+			memoryStream.Encrypt(data, 0, data.Length);
 			Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
 			Console.WriteLine(string.Join(" ", buffer));
 		}
@@ -41,10 +43,27 @@ namespace CryptoMemoryStream.IO.Tests
 
 			for (int i = 0; i < 2; i++)
 			{
-				memoryStream.Write(data, 0, data.Length);
+				memoryStream.Encrypt(data, 0, data.Length);
 				Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
 				Console.WriteLine(string.Join(" ", buffer));
 			}
+		}
+
+		[TestMethod()]
+		public void AESIVSizeTest()
+		{
+			AesCryptoServiceProvider aesManaged = new AesCryptoServiceProvider
+			{
+				Padding = PaddingMode.None,
+				Mode = CipherMode.ECB
+			};
+
+			aesManaged.KeySize = 256;
+			aesManaged.GenerateIV();
+			aesManaged.GenerateKey();
+
+			Console.WriteLine("IV Length : " + aesManaged.IV.Length);
+			Console.WriteLine("Key Length : " + aesManaged.Key.Length);
 		}
 	}
 }
