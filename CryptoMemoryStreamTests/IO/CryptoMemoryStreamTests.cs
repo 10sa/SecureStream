@@ -13,13 +13,18 @@ namespace CryptoStream.IO.Tests
 	[TestClass()]
 	public class CryptoMemoryStreamTests
 	{
-		public byte[] plainKey = new byte[16];
-		public byte[] data = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+		public byte[] plainKey = new byte[32];
+		public byte[] data;
+
+		public CryptoMemoryStreamTests()
+		{
+			data = Encoding.UTF8.GetBytes("ASDSADFSADFSAFSDAFSAFASDFASDSADFASSAFSADFSADGDSFSADFSDAFASDFSDAFASFSDAFASF");
+		}
 
 		[TestMethod()]
 		public void WriteTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
 
 			memoryStream.Encrypt(data, 0, data.Length);
 		}
@@ -27,25 +32,29 @@ namespace CryptoStream.IO.Tests
 		[TestMethod()]
 		public void ReadTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
-			byte[] buffer = new byte[16];
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+			byte[] buffer = new byte[data.Length];
 
 			memoryStream.Encrypt(data, 0, data.Length);
-			Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
+			Console.WriteLine(memoryStream.Decrypt(buffer, 0, buffer.Length));
 			Console.WriteLine(string.Join(" ", buffer));
+
+			Assert.IsTrue(data.SequenceEqual(buffer));
 		}
 
 		[TestMethod()]
 		public void DuplexRWTest()
 		{
-			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey, plainKey);
-			byte[] buffer = new byte[16];
+			CryptoMemoryStream memoryStream = new CryptoMemoryStream(1024, plainKey);
+			byte[] buffer = new byte[data.Length];
 
 			for (int i = 0; i < 2; i++)
 			{
 				memoryStream.Encrypt(data, 0, data.Length);
-				Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
+				Console.WriteLine(memoryStream.Decrypt(buffer, 0, buffer.Length));
 				Console.WriteLine(string.Join(" ", buffer));
+
+				Assert.IsTrue(data.SequenceEqual(buffer));
 			}
 		}
 
