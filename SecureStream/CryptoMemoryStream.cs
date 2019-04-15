@@ -17,12 +17,12 @@ namespace SecureStream
 		/// <summary>
 		/// 암호화 작업에 사용되는 암호화 키입니다.
 		/// </summary>
-		public byte[] Key { get { return aesManaged.Key; } }
+		public byte[] Key { get { return aesManaged.Key; } set { aesManaged.Key = value; } }
 
 		/// <summary>
 		/// 암호화 작업에 사용되는 초기화 벡터입니다.
 		/// </summary>
-		public byte[] IV { get { return aesManaged.IV; } }
+		public byte[] IV { get { return aesManaged.IV; } set { aesManaged.IV = value; } }
 
 		private ICryptoTransform cryptor;
 
