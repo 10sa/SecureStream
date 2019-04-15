@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 using CryptoStream;
 
-namespace CryptoStream.IO.Tests
+namespace SecureStream.IO.Tests
 {
 	[TestClass()]
 	public class CryptoMemoryStreamTests
