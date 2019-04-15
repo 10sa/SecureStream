@@ -96,15 +96,15 @@ namespace CryptoStream
 
 		private void InitializeCryptor(byte[] key, byte[] initializeVector)
 		{
-			cryptor = aesManaged.CreateEncryptor();
 			aesManaged.Key = key;
 			aesManaged.IV = initializeVector;
+			cryptor = aesManaged.CreateEncryptor();
 		}
 
 		private void InitializeCryptor(byte[] key)
 		{
-			cryptor = aesManaged.CreateEncryptor();
 			aesManaged.Key = key;
+			cryptor = aesManaged.CreateEncryptor();
 		}
 
 		/// <summary>
@@ -203,7 +203,7 @@ namespace CryptoStream
 		{
 			Queue<byte> xorMask = new Queue<byte>();
 			int blockSize = aesManaged.Key.Length;
-			byte[] counter = (byte[]) aesManaged.Key.Clone();
+			byte[] counter = (byte[]) aesManaged.IV.Clone();
 			for (int i = 0; i < count; i++)
 			{
 				if (xorMask.Count == 0)

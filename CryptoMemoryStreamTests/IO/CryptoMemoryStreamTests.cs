@@ -51,8 +51,11 @@ namespace CryptoStream.IO.Tests
 			for (int i = 0; i < 2; i++)
 			{
 				memoryStream.Encrypt(data, 0, data.Length);
-				Console.WriteLine(memoryStream.Decrypt(buffer, 0, buffer.Length));
+				Console.WriteLine(memoryStream.Read(buffer, 0, buffer.Length));
 				Console.WriteLine(string.Join(" ", buffer));
+
+				memoryStream.Write(buffer, 0, buffer.Length);
+				memoryStream.Decrypt(buffer, 0, buffer.Length);
 
 				Assert.IsTrue(data.SequenceEqual(buffer));
 			}
